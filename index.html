@@ -21,13 +21,12 @@
   --fh:'Space Grotesk','Inter',sans-serif;
   --fb:'Noto Sans SC','Inter',sans-serif;
   --fm:'JetBrains Mono',monospace;
+  --spring:cubic-bezier(.16,1,.3,1);
 }
 html,body{background:var(--bg);color:var(--text1);font-family:var(--fb);overflow:hidden;height:100%;-webkit-font-smoothing:antialiased}
 
 /*============================================================
-  GLOBAL CANVAS LABELS — visible at ALL zoom levels
-  These are NOT steps — they're giant decorative text sitting
-  in the 3D space, providing the "grand map" feel.
+  GLOBAL CANVAS LABELS
 ============================================================*/
 .canvas-label{
   position:absolute;
@@ -35,9 +34,7 @@ html,body{background:var(--bg);color:var(--text1);font-family:var(--fb);overflow
   color:rgba(255,255,255,.018);
   white-space:nowrap;pointer-events:none;
   letter-spacing:.05em;
-  /* These live inside #impress so they participate in 3D transforms */
 }
-/* The giant AIRACLE text — center of the universe */
 .cl-airacle{
   font-size:420px;
   left:-1800px;top:-600px;
@@ -45,23 +42,16 @@ html,body{background:var(--bg);color:var(--text1);font-family:var(--fb);overflow
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;
   letter-spacing:.15em;
 }
-/* Section labels — scattered across the canvas at their slide positions */
 .cl-section{
   font-size:140px;
   color:rgba(255,255,255,.022);
 }
-/* Decorative connecting lines between sections */
 .canvas-line{
   position:absolute;
   background:linear-gradient(90deg,rgba(0,212,255,.03),rgba(123,104,238,.03));
   height:2px;pointer-events:none;
   transform-origin:left center;
 }
-.canvas-line.vertical{
-  width:2px;height:auto;
-  background:linear-gradient(180deg,rgba(0,212,255,.03),rgba(123,104,238,.03));
-}
-/* Decorative circles */
 .canvas-ring{
   position:absolute;pointer-events:none;
   border:1px solid rgba(0,212,255,.03);
@@ -69,22 +59,116 @@ html,body{background:var(--bg);color:var(--text1);font-family:var(--fb);overflow
 }
 
 /*============================================================
-  IMPRESS CORE
+  IMPRESS CORE — Bold transitions
 ============================================================*/
 .impress-enabled .step{
   opacity:0;
-  transition:opacity 1.2s ease;
+  transition:opacity 1s var(--spring);
 }
 .impress-enabled .step.active{opacity:1}
 .impress-enabled .step.past,.impress-enabled .step.future{opacity:0}
 
-/* Make overview show ALL steps faintly */
-body.impress-on-overview .step{opacity:.35 !important;transition:opacity .8s}
+/* Overview shows ALL steps faintly */
+body.impress-on-overview .step{opacity:.3 !important;transition:opacity .8s}
 body.impress-on-overview .step.active{opacity:1 !important}
 
-/* Substeps */
-.substep{opacity:0;transform:translateY(25px);transition:opacity .5s cubic-bezier(.16,1,.3,1),transform .5s cubic-bezier(.16,1,.3,1)}
-.substep.substep-visible{opacity:1;transform:translateY(0)}
+/* Substeps — spring-like enter */
+.substep{
+  opacity:0;
+  transform:translateY(25px);
+  filter:blur(4px);
+  transition:opacity .5s var(--spring),transform .5s var(--spring),filter .5s var(--spring);
+}
+.substep.substep-visible{
+  opacity:1;transform:translateY(0);filter:blur(0);
+}
+
+/*============================================================
+  PER-WORD 3D ANIMATIONS — triggered by .present class
+============================================================*/
+.word3d{
+  display:inline-block;
+  transform:translateZ(60px) rotateX(10deg);
+  opacity:0;
+  transition:transform .7s var(--spring),opacity .6s var(--spring);
+}
+.step.present .word3d,
+.step.active .word3d{
+  transform:translateZ(0) rotateX(0);
+  opacity:1;
+}
+.step.present .word3d:nth-child(2),.step.active .word3d:nth-child(2){transition-delay:.15s}
+.step.present .word3d:nth-child(3),.step.active .word3d:nth-child(3){transition-delay:.3s}
+.step.present .word3d:nth-child(4),.step.active .word3d:nth-child(4){transition-delay:.45s}
+.step.present .word3d:nth-child(5),.step.active .word3d:nth-child(5){transition-delay:.6s}
+.step.present .word3d:nth-child(6),.step.active .word3d:nth-child(6){transition-delay:.75s}
+
+/* Scale-up words */
+.word-scale{
+  display:inline-block;
+  transform:scale(0.3);
+  opacity:0;
+  transition:transform .8s var(--spring),opacity .6s var(--spring);
+}
+.step.present .word-scale,.step.active .word-scale{
+  transform:scale(1);opacity:1;
+}
+.step.present .word-scale:nth-child(2),.step.active .word-scale:nth-child(2){transition-delay:.2s}
+.step.present .word-scale:nth-child(3),.step.active .word-scale:nth-child(3){transition-delay:.4s}
+.step.present .word-scale:nth-child(4),.step.active .word-scale:nth-child(4){transition-delay:.6s}
+
+/* Rotate-in words */
+.word-rotate{
+  display:inline-block;
+  transform:rotateY(90deg) translateZ(30px);
+  opacity:0;
+  transition:transform .8s var(--spring),opacity .5s var(--spring);
+}
+.step.present .word-rotate,.step.active .word-rotate{
+  transform:rotateY(0) translateZ(0);opacity:1;
+}
+.step.present .word-rotate:nth-child(2),.step.active .word-rotate:nth-child(2){transition-delay:.2s}
+.step.present .word-rotate:nth-child(3),.step.active .word-rotate:nth-child(3){transition-delay:.35s}
+.step.present .word-rotate:nth-child(4),.step.active .word-rotate:nth-child(4){transition-delay:.5s}
+.step.present .word-rotate:nth-child(5),.step.active .word-rotate:nth-child(5){transition-delay:.65s}
+
+/* Depth-push words (emerge from deep behind) */
+.word-depth{
+  display:inline-block;
+  transform:translateZ(-80px);
+  opacity:0;
+  filter:blur(6px);
+  transition:transform .9s var(--spring),opacity .7s var(--spring),filter .7s var(--spring);
+}
+.step.present .word-depth,.step.active .word-depth{
+  transform:translateZ(0);opacity:1;filter:blur(0);
+}
+.step.present .word-depth:nth-child(2),.step.active .word-depth:nth-child(2){transition-delay:.25s}
+.step.present .word-depth:nth-child(3),.step.active .word-depth:nth-child(3){transition-delay:.5s}
+
+/*============================================================
+  BRIDGE STEPS — dramatic transition slides
+============================================================*/
+.bridge{
+  text-align:center;
+  font-family:var(--fh);
+  perspective:600px;
+}
+.bridge-text{
+  font-size:4rem;
+  font-weight:900;
+  line-height:1.4;
+  letter-spacing:-1px;
+}
+.bridge-text.giant{
+  font-size:6rem;
+}
+.bridge-sub{
+  font-size:1.2rem;
+  color:var(--text2);
+  margin-top:16px;
+  letter-spacing:3px;
+}
 
 /*============================================================
   STEP CONTAINERS
@@ -154,7 +238,7 @@ h2.stitle{font-family:var(--fh);font-size:2.6rem;font-weight:800;margin-bottom:6
 .tbar-label{font-size:.78rem;color:var(--text2)}
 .tbar-val{font-family:var(--fm);font-size:.78rem;font-weight:600;color:var(--cyan)}
 .tbar-track{width:100%;height:4px;background:rgba(255,255,255,.04);border-radius:2px;overflow:hidden}
-.tbar-fill{height:100%;border-radius:2px;width:0;transition:width 1.5s cubic-bezier(.16,1,.3,1)}
+.tbar-fill{height:100%;border-radius:2px;width:0;transition:width 1.5s var(--spring)}
 .tbar-fill.fc{background:linear-gradient(90deg,var(--cyan),var(--purple))}
 .tbar-fill.fg{background:linear-gradient(90deg,var(--green),var(--cyan))}
 .tbar-fill.fp{background:linear-gradient(90deg,var(--pink),var(--purple))}
@@ -178,7 +262,7 @@ h2.stitle{font-family:var(--fh);font-size:2.6rem;font-weight:800;margin-bottom:6
 .cbar-title{font-size:.88rem;color:#fff;font-weight:500}
 .cbar-val{font-family:var(--fh);font-size:1.15rem;font-weight:800;color:var(--cyan)}
 .cbar-track{width:100%;height:6px;background:rgba(255,255,255,.03);border-radius:3px;overflow:hidden}
-.cbar-fill{height:100%;border-radius:3px;width:0;transition:width 1.8s cubic-bezier(.16,1,.3,1)}
+.cbar-fill{height:100%;border-radius:3px;width:0;transition:width 1.8s var(--spring)}
 .cbar-fill.cg{background:linear-gradient(90deg,var(--green),var(--cyan))}
 .cbar-fill.cp{background:linear-gradient(90deg,var(--cyan),var(--purple))}
 .cbar-fill.co{background:linear-gradient(90deg,var(--gold),var(--pink))}
@@ -202,7 +286,7 @@ h2.stitle{font-family:var(--fh);font-size:2.6rem;font-weight:800;margin-bottom:6
 .cover-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(0,212,255,.05);border:1px solid rgba(0,212,255,.1);padding:6px 18px;border-radius:24px;font-size:.72rem;color:var(--cyan);font-weight:500;letter-spacing:1px}
 .pulse-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(0,255,176,.4)}50%{box-shadow:0 0 0 8px rgba(0,255,176,0)}}
-.cover-title{font-family:var(--fh);font-size:6rem;font-weight:900;letter-spacing:-2px;line-height:1;margin:20px 0 8px}
+.cover-title{font-family:var(--fh);font-size:7rem;font-weight:900;letter-spacing:-2px;line-height:1;margin:20px 0 8px}
 .cover-en{font-size:.9rem;color:var(--text3);font-weight:300;letter-spacing:3px;font-family:var(--fh)}
 .cover-meta{display:flex;gap:24px;margin-top:28px}
 .cm-item{font-size:.78rem;color:var(--text3);display:flex;align-items:center;gap:6px}
@@ -221,7 +305,7 @@ h2.stitle{font-family:var(--fh);font-size:2.6rem;font-weight:800;margin-bottom:6
 .ico.g{background:rgba(0,255,176,.08);border:1px solid rgba(0,255,176,.1)}
 
 /*============================================================
-  INFO CARDS (contribution page)
+  INFO CARDS
 ============================================================*/
 .info-card{display:flex;align-items:center;gap:12px;padding:14px 16px;background:rgba(123,104,238,.03);border:1px solid rgba(123,104,238,.06);border-radius:14px;margin-bottom:10px}
 .ic-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
@@ -234,7 +318,6 @@ h2.stitle{font-family:var(--fh);font-size:2.6rem;font-weight:800;margin-bottom:6
 .nav-ui{position:fixed;z-index:999;pointer-events:none}
 .nav-ui *{pointer-events:auto}
 
-/* Top bar */
 .top-bar{position:fixed;top:0;left:0;right:0;z-index:999;display:flex;justify-content:space-between;align-items:center;padding:14px 28px;background:linear-gradient(180deg,rgba(5,5,16,.9),transparent)}
 .logo{display:flex;align-items:center;gap:10px}
 .logo-mark{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--cyan),var(--purple));display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-weight:900;font-size:13px;color:#fff}
@@ -242,10 +325,8 @@ h2.stitle{font-family:var(--fh);font-size:2.6rem;font-weight:800;margin-bottom:6
 .slide-counter{font-family:var(--fm);font-size:.8rem;color:var(--text3)}
 .slide-counter .cur{color:var(--cyan);font-weight:600;font-size:1.1rem}
 
-/* Progress */
-.progress-bar{position:fixed;top:0;left:0;height:2px;z-index:1000;transition:width .8s cubic-bezier(.16,1,.3,1);background:linear-gradient(90deg,var(--cyan),var(--purple),var(--pink))}
+.progress-bar{position:fixed;top:0;left:0;height:2px;z-index:1000;transition:width .8s var(--spring);background:linear-gradient(90deg,var(--cyan),var(--purple),var(--pink))}
 
-/* Minimap */
 .minimap{position:fixed;right:16px;top:50%;transform:translateY(-50%);z-index:999;display:flex;flex-direction:column;gap:10px}
 .mm-dot{width:3px;height:16px;border-radius:2px;background:rgba(255,255,255,.08);cursor:pointer;transition:all .4s;position:relative}
 .mm-dot::after{content:attr(data-label);position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:.6rem;color:transparent;white-space:nowrap;transition:color .3s;font-family:var(--fh);font-weight:500;letter-spacing:1px}
@@ -253,45 +334,50 @@ h2.stitle{font-family:var(--fh);font-size:2.6rem;font-weight:800;margin-bottom:6
 .mm-dot:hover{background:rgba(0,212,255,.3);height:20px}
 .mm-dot.active{background:var(--cyan);height:24px;box-shadow:0 0 10px rgba(0,212,255,.4)}
 .mm-dot.active::after{color:var(--cyan)}
+/* Bridge dots are smaller */
+.mm-dot.mm-bridge{height:6px;width:3px;background:rgba(255,255,255,.04)}
+.mm-dot.mm-bridge.active{height:12px}
 
-/* Hint */
 .hint{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:999;font-family:var(--fm);font-size:.65rem;color:var(--text3);letter-spacing:2px;opacity:1;transition:opacity 1s}
 .hint.hidden{opacity:0}
-
-/*============================================================
-  IMAGES
-============================================================*/
-.img-row{display:flex;gap:10px;margin-top:12px}
-.img-card{flex:1;height:90px;border-radius:12px;overflow:hidden;position:relative;border:1px solid var(--border)}
-.img-card img{width:100%;height:100%;object-fit:cover}
-.img-card .lbl{position:absolute;bottom:0;left:0;right:0;padding:6px 10px;background:linear-gradient(0deg,rgba(5,5,16,.8),transparent);font-size:.65rem;color:var(--text1);font-weight:600}
 
 /*============================================================
   ANIMATE BARS ON ENTER
 ============================================================*/
 .step.active .tbar-fill[data-w]{width:var(--w)}
 .step.active .cbar-fill[data-w]{width:var(--w)}
+
+/*============================================================
+  REDUCED MOTION
+============================================================*/
+@media(prefers-reduced-motion:reduce){
+  .substep,.word3d,.word-scale,.word-rotate,.word-depth{transition-duration:0.01ms !important}
+  .impress-enabled .step{transition-duration:0.01ms !important}
+}
 </style>
 </head>
 <body class="impress-not-supported">
 
-<!-- NAV UI (fixed, outside impress) -->
+<!-- NAV UI -->
 <div class="top-bar">
   <div class="logo">
     <div class="logo-mark">A</div>
     <div class="logo-text grad">AIRACLE</div>
   </div>
-  <div class="slide-counter" id="counter"><span class="cur">01</span> / 09</div>
+  <div class="slide-counter" id="counter"><span class="cur">01</span> / 13</div>
 </div>
 <div class="progress-bar" id="progress" style="width:0"></div>
 
 <div class="minimap" id="minimap">
   <div class="mm-dot" data-target="cover" data-label="封面"></div>
+  <div class="mm-dot mm-bridge" data-target="bridge-company" data-label=""></div>
   <div class="mm-dot" data-target="company" data-label="公司"></div>
   <div class="mm-dot" data-target="team" data-label="团队"></div>
+  <div class="mm-dot mm-bridge" data-target="bridge-demo" data-label=""></div>
   <div class="mm-dot" data-target="demo" data-label="AI员工"></div>
   <div class="mm-dot" data-target="tech" data-label="技术"></div>
   <div class="mm-dot" data-target="business" data-label="商务"></div>
+  <div class="mm-dot mm-bridge" data-target="bridge-vision" data-label=""></div>
   <div class="mm-dot" data-target="contribution" data-label="贡献"></div>
   <div class="mm-dot" data-target="vision" data-label="愿景"></div>
   <div class="mm-dot" data-target="overview" data-label="总览"></div>
@@ -301,55 +387,49 @@ h2.stitle{font-family:var(--fh);font-size:2.6rem;font-weight:800;margin-bottom:6
 
 <!-- ============================================================
      THE IMPRESS CANVAS
-     data-width/height set the "design" viewport
-     data-perspective controls 3D depth drama
+     Bold 3D spatial navigation with dramatic depth & rotation
      ============================================================ -->
 <div id="impress"
      data-width="1920" data-height="1080"
      data-transition-duration="1200"
-     data-perspective="800"
+     data-perspective="1000"
      data-autoplay="0">
 
   <!-- =====================================================
        GLOBAL CANVAS DECORATIONS
-       These giant texts/shapes are always there in 3D space.
-       When zoomed out (overview), they form the "grand map".
        ===================================================== -->
-
-  <!-- Giant AIRACLE title — the center of the map -->
   <div class="canvas-label cl-airacle">AIRACLE</div>
 
-  <!-- Section labels scattered at each slide's location -->
-  <div class="canvas-label cl-section" style="left:-200px;top:-2600px;color:rgba(0,212,255,.025)">公司</div>
-  <div class="canvas-label cl-section" style="left:2800px;top:-1200px;color:rgba(123,104,238,.025)">团队</div>
-  <div class="canvas-label cl-section" style="left:-2600px;top:800px;color:rgba(0,212,255,.02)">产品</div>
-  <div class="canvas-label cl-section" style="left:2400px;top:1400px;color:rgba(255,107,157,.02)">技术</div>
-  <div class="canvas-label cl-section" style="left:-200px;top:3000px;color:rgba(0,255,176,.02)">商务</div>
-  <div class="canvas-label cl-section" style="left:-3200px;top:-1400px;color:rgba(255,215,0,.02)">贡献</div>
-  <div class="canvas-label cl-section" style="left:3200px;top:-2800px;color:rgba(123,104,238,.02)">愿景</div>
+  <div class="canvas-label cl-section" style="left:-400px;top:-4200px;color:rgba(0,212,255,.025)">公司</div>
+  <div class="canvas-label cl-section" style="left:4200px;top:-2000px;color:rgba(123,104,238,.025)">团队</div>
+  <div class="canvas-label cl-section" style="left:-4200px;top:1200px;color:rgba(0,212,255,.02)">产品</div>
+  <div class="canvas-label cl-section" style="left:3800px;top:2800px;color:rgba(255,107,157,.02)">技术</div>
+  <div class="canvas-label cl-section" style="left:-400px;top:5200px;color:rgba(0,255,176,.02)">商务</div>
+  <div class="canvas-label cl-section" style="left:-4800px;top:-2400px;color:rgba(255,215,0,.02)">贡献</div>
+  <div class="canvas-label cl-section" style="left:5200px;top:-4200px;color:rgba(123,104,238,.02)">愿景</div>
 
-  <!-- Decorative rings at key positions -->
-  <div class="canvas-ring" style="left:-600px;top:-1400px;width:800px;height:800px"></div>
-  <div class="canvas-ring" style="left:2000px;top:600px;width:600px;height:600px;border-color:rgba(123,104,238,.025)"></div>
-  <div class="canvas-ring" style="left:-1800px;top:2200px;width:500px;height:500px;border-color:rgba(255,107,157,.02)"></div>
+  <div class="canvas-ring" style="left:-1200px;top:-2400px;width:1200px;height:1200px"></div>
+  <div class="canvas-ring" style="left:3400px;top:1000px;width:900px;height:900px;border-color:rgba(123,104,238,.025)"></div>
+  <div class="canvas-ring" style="left:-3000px;top:3600px;width:700px;height:700px;border-color:rgba(255,107,157,.02)"></div>
+  <div class="canvas-ring" style="left:1600px;top:-3800px;width:500px;height:500px;border-color:rgba(0,255,176,.02)"></div>
 
-  <!-- Connecting lines forming a constellation between sections -->
-  <div class="canvas-line" style="left:400px;top:-200px;width:2200px;transform:rotate(-25deg)"></div>
-  <div class="canvas-line" style="left:-200px;top:200px;width:1800px;transform:rotate(35deg)"></div>
-  <div class="canvas-line" style="left:200px;top:-1800px;width:1400px;transform:rotate(70deg)"></div>
-  <div class="canvas-line" style="left:-1600px;top:-200px;width:1200px;transform:rotate(-15deg)"></div>
+  <div class="canvas-line" style="left:600px;top:-400px;width:3600px;transform:rotate(-25deg)"></div>
+  <div class="canvas-line" style="left:-400px;top:400px;width:3000px;transform:rotate(35deg)"></div>
+  <div class="canvas-line" style="left:400px;top:-3000px;width:2400px;transform:rotate(70deg)"></div>
+  <div class="canvas-line" style="left:-2800px;top:-400px;width:2000px;transform:rotate(-15deg)"></div>
+  <div class="canvas-line" style="left:-1200px;top:2000px;width:2800px;transform:rotate(12deg)"></div>
 
 
   <!-- =====================================================
-       SLIDE 1: COVER — center of the universe, scale 3
-       Camera starts here zoomed in tight
+       SLIDE 1: COVER — center, scale 4 = HUGE entrance
+       Camera starts zoomed in dramatically
        ===================================================== -->
   <div id="cover" class="step" style="text-align:center"
-       data-x="0" data-y="0" data-z="200"
-       data-scale="3">
+       data-x="0" data-y="0" data-z="500"
+       data-scale="4">
 
     <div class="cover-badge substep"><div class="pulse-dot"></div>SILICON VALLEY · BEIJING · AI</div>
-    <h1 class="cover-title grad substep">Airacle</h1>
+    <h1 class="cover-title"><span class="word3d grad">Airacle</span></h1>
     <p class="cover-en substep">Empowering Global Creator Economy with AI</p>
     <p style="font-size:1.15rem;color:var(--text2);margin-top:10px" class="substep">全球AI驱动的智能营销科技公司</p>
     <div class="cover-meta substep" style="justify-content:center">
@@ -362,12 +442,30 @@ h2.stitle{font-family:var(--fh);font-size:2.6rem;font-weight:800;margin-bottom:6
 
 
   <!-- =====================================================
-       SLIDE 2: COMPANY — fly up-right, zoom in
+       BRIDGE 1: "一家什么样的公司？"
+       Camera zooms out, rotates 90deg, dives into Z
+       ===================================================== -->
+  <div id="bridge-company" class="step bridge"
+       data-x="1800" data-y="-1800" data-z="-1500"
+       data-rotate-z="90"
+       data-scale="2">
+
+    <div class="bridge-text">
+      <span class="word-scale grad">一家</span>
+      <span class="word-scale" style="color:var(--text1)">什么样的</span><br>
+      <span class="word-scale grad" style="transition-delay:.4s">公司？</span>
+    </div>
+  </div>
+
+
+  <!-- =====================================================
+       SLIDE 2: COMPANY — fly up-left, bold rotation
        ===================================================== -->
   <div id="company" class="step"
-       data-x="0" data-y="-2400"
-       data-z="-200"
-       data-rotate-z="-2"
+       data-x="-1200" data-y="-3600"
+       data-z="-400"
+       data-rotate-z="0"
+       data-rotate-y="-15"
        data-scale="1.5">
 
     <div class="tag substep">COMPANY OVERVIEW</div>
@@ -402,12 +500,12 @@ h2.stitle{font-family:var(--fh);font-size:2.6rem;font-weight:800;margin-bottom:6
 
 
   <!-- =====================================================
-       SLIDE 3: TEAM — fly far right, tilt
+       SLIDE 3: TEAM — fly FAR right, rotate Y 120deg = wall swing
        ===================================================== -->
   <div id="team" class="step step-wide"
-       data-x="3200" data-y="-1000"
-       data-z="-400"
-       data-rotate-y="8"
+       data-x="4800" data-y="-1600"
+       data-z="-2000"
+       data-rotate-y="120"
        data-scale="1.3">
 
     <div class="tag substep">CORE TEAM</div>
@@ -434,14 +532,34 @@ h2.stitle{font-family:var(--fh);font-size:2.6rem;font-weight:800;margin-bottom:6
 
 
   <!-- =====================================================
-       SLIDE 4: DEMO OPENCLAW — dive left-down, rotate
+       BRIDGE 2: "用AI重新定义..."
+       Dramatic Z-dive, 180deg rotation
+       ===================================================== -->
+  <div id="bridge-demo" class="step bridge"
+       data-x="800" data-y="1200" data-z="-3000"
+       data-rotate-z="180"
+       data-rotate-x="15"
+       data-scale="3">
+
+    <div class="bridge-text giant">
+      <span class="word-rotate grad">用</span>
+      <span class="word-rotate" style="color:var(--text1)">AI</span>
+      <span class="word-rotate grad">重新定义</span>
+      <span class="word-rotate" style="color:var(--pink)">...</span>
+    </div>
+    <div class="bridge-sub" style="transform:rotate(180deg)">REDEFINE EVERYTHING WITH AI</div>
+  </div>
+
+
+  <!-- =====================================================
+       SLIDE 4: DEMO — deep dive left, dramatic entry
        ===================================================== -->
   <div id="demo" class="step"
-       data-x="-2800" data-y="800"
-       data-z="-800"
-       data-rotate-y="-10"
-       data-rotate-z="2"
-       data-scale="1.4">
+       data-x="-4000" data-y="2000"
+       data-z="-1200"
+       data-rotate-y="-90"
+       data-rotate-z="5"
+       data-scale="1.6">
 
     <div class="tag substep">PRODUCT SHOWCASE</div>
     <h2 class="stitle substep">产品展示 · <span class="grad">AI网红员工</span></h2>
@@ -463,13 +581,14 @@ h2.stitle{font-family:var(--fh);font-size:2.6rem;font-weight:800;margin-bottom:6
 
 
   <!-- =====================================================
-       SLIDE 5: TECH — far right-down, wall effect
+       SLIDE 5: TECH — swing far right-down, rotate back
        ===================================================== -->
   <div id="tech" class="step step-wide"
-       data-x="2800" data-y="1600"
-       data-z="-600"
-       data-rotate-y="-6"
-       data-scale="1.3">
+       data-x="4200" data-y="3200"
+       data-z="-800"
+       data-rotate-y="90"
+       data-rotate-z="-10"
+       data-scale="1.4">
 
     <div class="tag substep">TECHNOLOGY &amp; APP</div>
     <h2 class="stitle substep">技术能力 · <span class="grad">产品矩阵</span></h2>
@@ -501,13 +620,14 @@ h2.stitle{font-family:var(--fh);font-size:2.6rem;font-weight:800;margin-bottom:6
 
 
   <!-- =====================================================
-       SLIDE 6: BUSINESS — center-bottom area
+       SLIDE 6: BUSINESS — bottom center, tilt forward
        ===================================================== -->
   <div id="business" class="step step-wide"
-       data-x="0" data-y="3200"
-       data-z="-300"
-       data-rotate-x="5"
-       data-scale="1.4">
+       data-x="0" data-y="5000"
+       data-z="-600"
+       data-rotate-x="30"
+       data-rotate-z="0"
+       data-scale="1.5">
 
     <div class="tag substep">BUSINESS &amp; INFLUENCE</div>
     <h2 class="stitle substep">商务拓展 · <span class="grad">行业影响力</span></h2>
@@ -544,14 +664,32 @@ h2.stitle{font-family:var(--fh);font-size:2.6rem;font-weight:800;margin-bottom:6
 
 
   <!-- =====================================================
-       SLIDE 7: CONTRIBUTION — far left, elevated
+       BRIDGE 3: "我们的征途是..."
+       Rising from deep below, dramatic Z climb
+       ===================================================== -->
+  <div id="bridge-vision" class="step bridge"
+       data-x="-2400" data-y="800" data-z="400"
+       data-rotate-z="-90"
+       data-rotate-y="30"
+       data-scale="2.5">
+
+    <div class="bridge-text giant">
+      <span class="word-depth grad">我们的</span>
+      <span class="word-depth" style="color:var(--text1)">征途</span>
+      <span class="word-depth grad-warm">是星辰大海</span>
+    </div>
+  </div>
+
+
+  <!-- =====================================================
+       SLIDE 7: CONTRIBUTION — far left, elevated, dramatic entry
        ===================================================== -->
   <div id="contribution" class="step step-wide"
-       data-x="-3400" data-y="-1200"
-       data-z="-500"
-       data-rotate-y="10"
-       data-rotate-z="-3"
-       data-scale="1.3">
+       data-x="-4200" data-y="-2400"
+       data-z="-1800"
+       data-rotate-y="180"
+       data-rotate-z="0"
+       data-scale="1.4">
 
     <div class="tag substep">SOCIAL IMPACT</div>
     <h2 class="stitle substep">社会贡献 · <span class="grad">发展愿景</span></h2>
@@ -577,16 +715,24 @@ h2.stitle{font-family:var(--fh);font-size:2.6rem;font-weight:800;margin-bottom:6
 
 
   <!-- =====================================================
-       SLIDE 8: VISION — return near center, elevated, grand
+       SLIDE 8: VISION — return to center, scale 6 = GIANT
+       Camera zooms way out then comes close, elevated high
        ===================================================== -->
   <div id="vision" class="step"
-       data-x="0" data-y="-800"
-       data-z="600"
-       data-scale="2.5">
+       data-x="0" data-y="-1200"
+       data-z="500"
+       data-rotate-z="0"
+       data-rotate-y="0"
+       data-scale="3">
 
     <div class="vision-card">
       <div class="tag substep" style="justify-content:center">OUR VISION</div>
-      <div class="v-quote substep">以AI技术连接全球创作者<br>让每一个品牌触达世界</div>
+      <div class="v-quote">
+        <span class="word3d">以AI技术</span>
+        <span class="word3d">连接全球创作者</span><br>
+        <span class="word3d">让每一个品牌</span>
+        <span class="word3d">触达世界</span>
+      </div>
       <div class="v-div"></div>
       <p style="font-size:1.1rem;color:var(--cyan);margin:14px 0 6px;font-weight:600" class="substep">感谢各位领导莅临指导</p>
       <p style="font-size:.82rem;color:var(--text3);letter-spacing:2px" class="substep">Airacle · 北京顺义 · 2026</p>
@@ -599,13 +745,13 @@ h2.stitle{font-family:var(--fh);font-size:2.6rem;font-weight:800;margin-bottom:6
 
 
   <!-- =====================================================
-       SLIDE 9: OVERVIEW — zoom WAY out to see the grand map
-       All steps become visible, giant AIRACLE text appears
+       SLIDE 9: OVERVIEW — zoom WAY out, scale 10
+       Grand map view showing entire canvas
        ===================================================== -->
   <div id="overview" class="step"
-       data-x="0" data-y="400"
-       data-z="-2000"
-       data-scale="9">
+       data-x="400" data-y="800"
+       data-z="-3000"
+       data-scale="10">
   </div>
 
 </div><!-- /impress -->
@@ -623,18 +769,30 @@ h2.stitle{font-family:var(--fh);font-size:2.6rem;font-weight:800;margin-bottom:6
   var api = impress();
   api.init();
 
-  var ids = ['cover','company','team','demo','tech','business','contribution','vision','overview'];
-  var total = ids.length;
+  // All step IDs in order (including bridges)
+  var allIds = ['cover','bridge-company','company','team','bridge-demo','demo','tech','business','bridge-vision','contribution','vision','overview'];
+  // Main content IDs for counter display (bridges excluded from numbering but included in total)
+  var total = allIds.length;
   var counterEl = document.getElementById('counter');
   var progressEl = document.getElementById('progress');
   var dots = document.querySelectorAll('.mm-dot');
   var hintEl = document.getElementById('hint');
 
+  // Number-key jump targets (1-9 map to main content slides)
+  var jumpIds = ['cover','company','team','demo','tech','business','contribution','vision','overview'];
+
   function update(id){
-    var i = ids.indexOf(id); if(i<0) i=0;
+    var i = allIds.indexOf(id); if(i<0) i=0;
     counterEl.innerHTML = '<span class="cur">' + String(i+1).padStart(2,'0') + '</span> / ' + String(total).padStart(2,'0');
     progressEl.style.width = ((i+1)/total*100)+'%';
     dots.forEach(function(d){ d.classList.toggle('active', d.getAttribute('data-target')===id) });
+
+    // Add/remove body class for overview
+    if(id==='overview'){
+      document.body.classList.add('impress-on-overview');
+    } else {
+      document.body.classList.remove('impress-on-overview');
+    }
   }
 
   // Minimap click
@@ -642,14 +800,20 @@ h2.stitle{font-family:var(--fh);font-size:2.6rem;font-weight:800;margin-bottom:6
     d.addEventListener('click', function(){ api.goto(d.getAttribute('data-target')) });
   });
 
-  // Slide enter/leave
-  document.addEventListener('impress:stepenter', function(e){ update(e.target.id) });
+  // Slide enter — also add .present class for per-word animations
+  document.addEventListener('impress:stepenter', function(e){
+    update(e.target.id);
+    e.target.classList.add('present');
+  });
+  document.addEventListener('impress:stepleave', function(e){
+    e.target.classList.remove('present');
+  });
 
-  // Number key jump
+  // Number key jump (1-9 for main content slides)
   document.addEventListener('keydown', function(e){
     if(e.key>='1' && e.key<='9'){
       var i=parseInt(e.key)-1;
-      if(i<ids.length){ e.preventDefault(); api.goto(ids[i]) }
+      if(i<jumpIds.length){ e.preventDefault(); api.goto(jumpIds[i]) }
     }
   });
 
