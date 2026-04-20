@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Airacle - AI驱动的智能营销科技公司</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+SC:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* === Variables & Reset === */
+:root {
+  --bg: #050510;
+  --card: rgba(10,12,30,.55);
+  --card-hover: rgba(16,20,48,.75);
+  --border: rgba(255,255,255,.06);
+  --border-hover: rgba(0,180,255,.3);
+  --cyan: #00d4ff;
+  --purple: #7b68ee;
+  --pink: #ff6b9d;
+  --green: #00ffb0;
+  --gold: #ffd700;
+  --orange: #ff8c42;
+  --text: #e8eaf6;
+  --text2: #8892b0;
+  --text3: #4a5070;
+  --fn: 'Noto Sans SC','PingFang SC',sans-serif;
+  --fe: 'Inter','Space Grotesk',sans-serif;
+  --fm: 'JetBrains Mono',monospace;
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: var(--fn);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* === Noise Overlay === */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  z-index: 999;
+  pointer-events: none;
+  opacity: .035;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+}
+
+/* === Ambient Blobs === */
+.blob {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(120px);
+  pointer-events: none;
+  z-index: 0;
+}
+.blob-1 {
+  width: 600px; height: 600px;
+  background: conic-gradient(from 0deg at 50% 50%, rgba(0,120,255,.12), rgba(123,104,238,.1), rgba(255,107,157,.05), rgba(0,120,255,.12));
+  top: -15%; left: -10%;
+  animation: blobDrift1 20s ease-in-out infinite;
+}
+.blob-2 {
+  width: 450px; height: 450px;
+  background: conic-gradient(from 180deg at 50% 50%, rgba(123,104,238,.1), rgba(0,255,176,.06), rgba(0,120,255,.08), rgba(123,104,238,.1));
+  bottom: -10%; right: -8%;
+  animation: blobDrift2 25s ease-in-out infinite;
+}
+@keyframes blobDrift1 { 0%,100%{transform:translate(0,0) scale(1) rotate(0deg)} 33%{transform:translate(40px,30px) scale(1.1) rotate(120deg)} 66%{transform:translate(-20px,50px) scale(.95) rotate(240deg)} }
+@keyframes blobDrift2 { 0%,100%{transform:translate(0,0) scale(1) rotate(0deg)} 50%{transform:translate(-50px,-30px) scale(1.15) rotate(180deg)} }
+
+/* === Impress.js base === */
+.impress-enabled .step {
+  opacity: 0.15;
+  transition: opacity 1s;
+}
+.impress-enabled .step.active {
+  opacity: 1;
+}
+
+/* === Step / Slide Styling === */
+.step {
+  width: 900px;
+  min-height: 700px;
+  padding: 50px 60px;
+  font-size: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+/* Glass card background for slides */
+.slide-glass {
+  background: rgba(8,10,28,.7);
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 28px;
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  padding: 50px 60px;
+  width: 100%;
+  min-height: 600px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 20px 80px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.05);
+}
+.slide-glass::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 10%, rgba(255,255,255,.08) 50%, transparent 90%);
+}
+
+/* === Typography === */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--fm);
+  font-size: .7rem;
+  font-weight: 600;
+  color: var(--cyan);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  margin-bottom: 18px;
+  opacity: .7;
+}
+.tag::before, .tag::after {
+  content: '';
+  width: 24px;
+  height: 1px;
+  background: currentColor;
+}
+
+h1.hero {
+  font-size: 5rem;
+  font-weight: 900;
+  line-height: 1.05;
+  text-align: center;
+  margin-bottom: 12px;
+  font-family: var(--fe);
+  letter-spacing: -2px;
+  background: linear-gradient(135deg, #fff 0%, var(--cyan) 50%, var(--purple) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+h2.stitle {
+  font-size: 2.4rem;
+  font-weight: 800;
+  text-align: center;
+  margin-bottom: 8px;
+  letter-spacing: -.5px;
+}
+h2.stitle .acc {
+  background: linear-gradient(135deg, var(--cyan), var(--purple));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.sub {
+  font-size: .95rem;
+  color: var(--text2);
+  text-align: center;
+  max-width: 580px;
+  line-height: 1.8;
+  margin-bottom: 28px;
+}
+
+/* === Cover === */
+.cover-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(0,212,255,.06);
+  border: 1px solid rgba(0,212,255,.12);
+  padding: 7px 20px;
+  border-radius: 30px;
+  font-size: .78rem;
+  color: var(--cyan);
+  font-weight: 500;
+  letter-spacing: 1px;
+  margin-bottom: 28px;
+}
+.pulse-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--green);
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{box-shadow:0 0 0 0 rgba(0,255,176,.4)} 50%{box-shadow:0 0 0 8px rgba(0,255,176,0)} }
+
+.cover-en {
+  font-size: .95rem;
+  color: var(--text3);
+  font-weight: 300;
+  letter-spacing: 3px;
+  font-family: var(--fe);
+  margin-top: 4px;
+}
+.cover-meta {
+  display: flex;
+  gap: 28px;
+  margin-top: 36px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.cm-item {
+  font-size: .82rem;
+  color: var(--text3);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.cm-dot {
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: var(--purple);
+}
+.presenters {
+  margin-top: 22px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.08);
+  background: linear-gradient(135deg, rgba(255,255,255,.04), rgba(0,212,255,.05));
+  color: var(--text);
+  font-size: .92rem;
+  letter-spacing: .6px;
+  font-weight: 500;
+}
+
+/* === Stats === */
+.stats {
+  display: flex;
+  gap: 40px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 30px;
+}
+.st { text-align: center; }
+.st-n {
+  font-family: var(--fe);
+  font-size: 3rem;
+  font-weight: 900;
+  line-height: 1;
+  background: linear-gradient(135deg, var(--cyan), var(--purple));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.st-n .u {
+  font-size: 1rem;
+  font-weight: 700;
+  -webkit-text-fill-color: var(--cyan);
+}
+.st-l {
+  font-size: .78rem;
+  color: var(--text3);
+  margin-top: 6px;
+  letter-spacing: 1px;
+  font-weight: 500;
+}
+
+/* === Glass Cards & Grids === */
+.gc {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  padding: 28px;
+  position: relative;
+  overflow: hidden;
+}
+.gc::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 10%, rgba(255,255,255,.08) 50%, transparent 90%);
+}
+.gc h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 6px;
+}
+
+.grid { display: grid; gap: 16px; width: 100%; }
+.g2 { grid-template-columns: 1fr 1fr; }
+.g3 { grid-template-columns: 1fr 1fr 1fr; }
+
+/* === Icons === */
+.ico {
+  width: 48px; height: 48px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  margin-bottom: 14px;
+}
+.ico.c { background: rgba(0,212,255,.08); border: 1px solid rgba(0,212,255,.1); }
+.ico.p { background: rgba(123,104,238,.08); border: 1px solid rgba(123,104,238,.1); }
+.ico.k { background: rgba(255,107,157,.08); border: 1px solid rgba(255,107,157,.1); }
+.ico.g { background: rgba(0,255,176,.08); border: 1px solid rgba(0,255,176,.1); }
+
+/* === Team Cards === */
+.tg-title {
+  font-family: var(--fm);
+  font-size: .7rem;
+  font-weight: 600;
+  color: var(--purple);
+  letter-spacing: 4px;
+  text-align: center;
+  margin: 16px 0 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.tg-title::before, .tg-title::after {
+  content: '';
+  width: 24px;
+  height: 1px;
+  background: var(--purple);
+}
+
+.team-grid {
+  display: grid;
+  gap: 10px;
+  width: 100%;
+}
+.team-grid.g5 { grid-template-columns: repeat(5, 1fr); }
+.team-grid.g4 { grid-template-columns: 1.3fr 1fr 1fr 1fr; }
+
+.tc {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 18px 12px;
+  text-align: center;
+}
+.tc.founder { border-color: rgba(123,104,238,.2); }
+.tc-avatar {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  margin: 0 auto 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.tc-avatar img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+.tc.founder .tc-avatar { width: 52px; height: 52px; }
+.tc-name { font-size: .92rem; font-weight: 700; color: #fff; margin-bottom: 2px; }
+.tc-role { font-size: .72rem; color: var(--text2); line-height: 1.4; }
+.tc-badge {
+  display: inline-block;
+  font-size: .55rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 20px;
+  margin-top: 6px;
+  letter-spacing: 1px;
+}
+.b-prod { background: rgba(0,212,255,.1); color: var(--cyan); }
+.b-ops { background: rgba(0,255,176,.1); color: var(--green); }
+.b-ai { background: rgba(123,104,238,.1); color: var(--purple); }
+.b-hr { background: rgba(255,215,0,.1); color: var(--gold); }
+.b-mkt { background: rgba(255,107,157,.1); color: var(--pink); }
+.b-fdr { background: linear-gradient(135deg, rgba(123,104,238,.15), rgba(255,107,157,.15)); color: #c4b5fd; }
+.b-fs { background: rgba(0,212,255,.08); color: var(--cyan); }
+.tc-extra { font-size: .65rem; color: var(--text3); margin-top: 5px; line-height: 1.4; }
+
+/* === Demo / Feature Cards === */
+.demo-hero {
+  background: linear-gradient(135deg, rgba(10,15,40,.85), rgba(5,8,25,.9));
+  border: 1px solid rgba(123,104,238,.1);
+  border-radius: 24px;
+  padding: 36px;
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+}
+.demo-num {
+  font-family: var(--fe);
+  font-size: 5rem;
+  font-weight: 900;
+  position: absolute;
+  top: 8px; right: 28px;
+  line-height: 1;
+  background: linear-gradient(135deg, rgba(0,212,255,.08), rgba(123,104,238,.08));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.demo-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 14px;
+  border-radius: 22px;
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  margin-bottom: 12px;
+}
+.demo-badge.primary { background: linear-gradient(135deg, var(--cyan), var(--purple)); color: #fff; }
+.demo-badge.green { background: linear-gradient(135deg, var(--green), var(--cyan)); color: #fff; }
+.demo-title { font-size: 1.6rem; font-weight: 800; color: #fff; margin-bottom: 6px; }
+.demo-desc { font-size: .85rem; color: var(--text2); line-height: 1.8; margin-bottom: 18px; max-width: 580px; }
+
+.feat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.feat-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  background: rgba(255,255,255,.02);
+  border: 1px solid rgba(255,255,255,.04);
+  border-radius: 12px;
+}
+.feat-chk {
+  width: 24px; height: 24px;
+  border-radius: 7px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .7rem;
+  font-weight: 700;
+}
+.feat-chk.c { background: rgba(0,255,176,.1); color: var(--green); }
+.feat-txt { font-size: .8rem; color: var(--text2); line-height: 1.5; }
+.feat-txt strong { color: #fff; display: block; margin-bottom: 2px; font-size: .84rem; }
+
+/* === Tech Bars === */
+.tbar-item { margin-bottom: 12px; }
+.tbar-top { display: flex; justify-content: space-between; margin-bottom: 5px; }
+.tbar-label { font-size: .78rem; color: var(--text2); }
+.tbar-val { font-family: var(--fm); font-size: .78rem; font-weight: 600; color: var(--cyan); }
+.tbar-track { width: 100%; height: 5px; background: rgba(255,255,255,.04); border-radius: 3px; overflow: hidden; }
+.tbar-fill {
+  height: 100%; border-radius: 3px;
+  width: 0%;
+  transition: width 1.5s cubic-bezier(.4,0,.2,1);
+  position: relative;
+  overflow: hidden;
+}
+.tbar-fill::after {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.2), transparent);
+  animation: barShine 2s linear infinite;
+}
+@keyframes barShine { 0%{transform:translateX(-100%)} 100%{transform:translateX(100%)} }
+.tbar-fill.fc { background: linear-gradient(90deg, var(--cyan), var(--purple)); }
+.tbar-fill.fg { background: linear-gradient(90deg, var(--green), var(--cyan)); }
+.tbar-fill.fp { background: linear-gradient(90deg, var(--pink), var(--purple)); }
+
+/* === Timeline === */
+.tl { position: relative; padding-left: 24px; }
+.tl::before {
+  content: '';
+  position: absolute;
+  left: 5px; top: 4px; bottom: 4px;
+  width: 2px;
+  background: linear-gradient(180deg, var(--cyan), var(--purple), transparent);
+}
+.tl-i { position: relative; margin-bottom: 14px; padding-left: 20px; }
+.tl-i::before {
+  content: '';
+  position: absolute;
+  left: -20px; top: 5px;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--cyan);
+  box-shadow: 0 0 8px rgba(0,212,255,.5);
+}
+.tl-i .tl-d { font-family: var(--fm); font-size: .7rem; font-weight: 600; color: var(--purple); margin-bottom: 2px; }
+.tl-i .tl-t { font-size: .82rem; color: var(--text2); line-height: 1.5; }
+.tl-i .tl-t strong { color: #fff; }
+
+/* === Image Gallery === */
+.img-row { display: flex; gap: 10px; margin-top: 12px; }
+.img-card {
+  flex: 1; min-width: 0;
+  height: 90px;
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+  border: 1px solid rgba(255,255,255,.06);
+}
+.img-card img { width: 100%; height: 100%; object-fit: cover; }
+.img-card .img-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(0deg, rgba(5,5,16,.8) 0%, transparent 60%);
+  display: flex; align-items: flex-end;
+  padding: 8px 10px;
+}
+.img-card .img-label { font-size: .65rem; color: var(--text); font-weight: 600; }
+
+/* === Contribution Bars === */
+.cbar { margin-bottom: 16px; }
+.cbar-top { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 6px; }
+.cbar-title { font-size: .85rem; color: #fff; font-weight: 500; }
+.cbar-val { font-family: var(--fe); font-size: 1.1rem; font-weight: 800; color: var(--cyan); }
+.cbar-track { width: 100%; height: 7px; background: rgba(255,255,255,.03); border-radius: 4px; overflow: hidden; }
+.cbar-fill {
+  height: 100%; border-radius: 4px;
+  width: 0%;
+  transition: width 1.5s cubic-bezier(.4,0,.2,1);
+  position: relative; overflow: hidden;
+}
+.cbar-fill::after {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.25), transparent);
+  animation: barShine 2s linear infinite;
+}
+.cbar-fill.cg { background: linear-gradient(90deg, var(--green), var(--cyan)); }
+.cbar-fill.cp { background: linear-gradient(90deg, var(--cyan), var(--purple)); }
+.cbar-fill.co { background: linear-gradient(90deg, var(--gold), var(--pink)); }
+.cbar-note { font-size: .68rem; color: var(--text3); margin-top: 3px; }
+
+/* === Info Items (contribution right column) === */
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 14px;
+  margin-bottom: 10px;
+}
+.info-icon {
+  width: 38px; height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 1.1rem;
+}
+.info-title { font-size: .88rem; color: #fff; font-weight: 600; }
+.info-desc { font-size: .74rem; color: var(--text2); margin-top: 1px; }
+
+/* === Vision === */
+.vision-box { width: 100%; max-width: 700px; text-align: center; }
+.v-card {
+  background: linear-gradient(135deg, rgba(0,120,255,.04), rgba(123,104,238,.04));
+  border: 1px solid rgba(0,180,255,.1);
+  border-radius: 28px;
+  padding: 48px 50px;
+  position: relative;
+  overflow: hidden;
+}
+.v-card::before {
+  content: '';
+  position: absolute;
+  top: -100px; left: 50%;
+  transform: translateX(-50%);
+  width: 350px; height: 350px;
+  background: radial-gradient(circle, rgba(0,212,255,.06), transparent 60%);
+}
+.v-quote {
+  font-size: 2.2rem;
+  font-weight: 800;
+  line-height: 1.45;
+  background: linear-gradient(135deg, #fff 20%, var(--cyan) 60%, var(--purple) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 16px 0;
+}
+.v-div {
+  width: 80px; height: 2px;
+  margin: 20px auto;
+  background: linear-gradient(90deg, transparent, var(--cyan), var(--purple), transparent);
+}
+
+/* === App feature items === */
+.app-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: rgba(0,212,255,.03);
+  border: 1px solid rgba(0,212,255,.06);
+  border-radius: 11px;
+  margin-bottom: 8px;
+  font-size: .82rem;
+  color: var(--text2);
+}
+.app-item span.icon { font-size: 1rem; flex-shrink: 0; }
+
+/* Compare box */
+.compare-box {
+  margin-top: 10px;
+  padding: 9px 12px;
+  background: rgba(255,107,157,.05);
+  border: 1px solid rgba(255,107,157,.08);
+  border-radius: 10px;
+  font-size: .78rem;
+  color: var(--text2);
+}
+
+/* === Animations on .active step === */
+.step .anim {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.step.active .anim {
+  opacity: 1;
+  transform: translateY(0);
+}
+.step.active .anim.d1 { transition-delay: 0.1s; }
+.step.active .anim.d2 { transition-delay: 0.2s; }
+.step.active .anim.d3 { transition-delay: 0.3s; }
+.step.active .anim.d4 { transition-delay: 0.4s; }
+.step.active .anim.d5 { transition-delay: 0.5s; }
+.step.active .anim.d6 { transition-delay: 0.6s; }
+.step.active .anim.d7 { transition-delay: 0.7s; }
+.step.active .anim.d8 { transition-delay: 0.8s; }
+.step.active .anim.d9 { transition-delay: 0.9s; }
+.step.active .anim.d10 { transition-delay: 1.0s; }
+
+/* Fade-in from different directions */
+.step .anim-left {
+  opacity: 0;
+  transform: translateX(-40px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.step.active .anim-left { opacity: 1; transform: translateX(0); }
+
+.step .anim-right {
+  opacity: 0;
+  transform: translateX(40px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.step.active .anim-right { opacity: 1; transform: translateX(0); }
+
+.step .anim-scale {
+  opacity: 0;
+  transform: scale(0.8);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+.step.active .anim-scale { opacity: 1; transform: scale(1); }
+
+/* === Navigation Hint === */
+.hint {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  font-family: var(--fm);
+  font-size: .7rem;
+  color: var(--text3);
+  letter-spacing: 2px;
+  padding: 8px 20px;
+  background: rgba(5,5,16,.7);
+  border: 1px solid rgba(255,255,255,.04);
+  border-radius: 30px;
+  backdrop-filter: blur(15px);
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+/* === Slide Counter === */
+.slide-counter {
+  position: fixed;
+  top: 20px;
+  right: 30px;
+  z-index: 1000;
+  font-family: var(--fm);
+  font-size: .8rem;
+  color: var(--text3);
+  letter-spacing: 2px;
+}
+.slide-counter .cur {
+  color: var(--cyan);
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+/* === Progress Bar === */
+.progress-bar {
+  position: fixed;
+  top: 0; left: 0;
+  height: 2px;
+  z-index: 1000;
+  transition: width .6s cubic-bezier(.4,0,.2,1);
+}
+.progress-bar-inner {
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, var(--cyan), var(--purple), var(--pink), var(--orange));
+  background-size: 300% 100%;
+  animation: progShimmer 3s linear infinite;
+}
+@keyframes progShimmer { 0%{background-position:0 0} 100%{background-position:300% 0} }
+
+/* Bar fill animation for active step */
+.step.active .tbar-fill[data-w] { width: var(--fill-w); }
+.step.active .cbar-fill[data-w] { width: var(--fill-w); }
+
+/* Overview step */
+#overview { padding: 0; }
+</style>
+</head>
+<body>
+
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+
+<div class="progress-bar" id="progressBar">
+  <div class="progress-bar-inner"></div>
+</div>
+
+<div class="slide-counter" id="slideCounter">
+  <span class="cur">01</span> / 09
+</div>
+
+<div id="impress" data-transition-duration="1200" data-min-scale="0.1" data-max-scale="6">
+
+  <!-- ========== SLIDE 1: COVER ========== -->
+  <div id="cover" class="step"
+       data-x="0" data-y="0" data-z="0"
+       data-scale="3">
+    <div class="slide-glass">
+      <div class="cover-badge anim d1"><div class="pulse-dot"></div>SILICON VALLEY &middot; BEIJING &middot; AI</div>
+      <h1 class="hero anim d2">Airacle</h1>
+      <p class="cover-en anim d3">Empowering Global Creator Economy with AI</p>
+      <p class="anim d4" style="font-size:1.15rem;color:var(--text2);margin-top:12px;font-weight:400">全球AI驱动的智能营销科技公司</p>
+      <div class="cover-meta anim d5">
+        <div class="cm-item"><div class="cm-dot"></div>北京 &middot; 顺义区</div>
+        <div class="cm-item"><div class="cm-dot"></div>2026年4月</div>
+        <div class="cm-item"><div class="cm-dot"></div>公司介绍 &amp; 产品演示</div>
+      </div>
+      <div class="presenters anim d6">汇报展示人：Kevin, Steve, Penny</div>
+    </div>
+  </div>
+
+  <!-- ========== SLIDE 2: COMPANY ========== -->
+  <div id="company" class="step"
+       data-x="2800" data-y="-400" data-z="-800"
+       data-rotate-y="-15" data-rotate-z="2"
+       data-scale="1">
+    <div class="slide-glass">
+      <div class="tag anim d1">COMPANY OVERVIEW</div>
+      <h2 class="stitle anim d2"><span class="acc">公司</span>概况</h2>
+      <p class="sub anim d3">成立于2024年10月 &middot; 中美双总部 &middot; AI技术赋能全球网红营销生态</p>
+      <div class="stats anim d4">
+        <div class="st"><div class="st-n">2024</div><div class="st-l">成立年份</div></div>
+        <div class="st"><div class="st-n">2<span class="u"> 国</span></div><div class="st-l">中美双总部</div></div>
+        <div class="st"><div class="st-n">10<span class="u">+</span></div><div class="st-l">核心成员</div></div>
+        <div class="st"><div class="st-n">3</div><div class="st-l">产品线</div></div>
+      </div>
+      <div class="grid g3">
+        <div class="gc anim d5">
+          <div class="ico c">&#x1f3e2;</div>
+          <h3>北京总部</h3>
+          <p style="font-size:.82rem;color:var(--text2);line-height:1.6;margin-top:6px">落地北京顺义区，承担核心产品研发、市场运营与政府合作</p>
+        </div>
+        <div class="gc anim d6">
+          <div class="ico p">&#x1f30f;</div>
+          <h3>硅谷研发中心</h3>
+          <p style="font-size:.82rem;color:var(--text2);line-height:1.6;margin-top:6px">旧金山湾区办公室，前沿AI研究、国际融资与全球化战略</p>
+        </div>
+        <div class="gc anim d7">
+          <div class="ico k">&#x1f680;</div>
+          <h3>业务定位</h3>
+          <p style="font-size:.82rem;color:var(--text2);line-height:1.6;margin-top:6px">AI赋能全球网红营销，智能内容生成与网红管理一站式平台</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== SLIDE 3: TEAM ========== -->
+  <div id="team" class="step"
+       data-x="1200" data-y="-2200" data-z="-400"
+       data-rotate-x="8" data-rotate-y="5"
+       data-scale="1">
+    <div class="slide-glass">
+      <div class="tag anim d1">CORE TEAM</div>
+      <h2 class="stitle anim d2"><span class="acc">核心</span>团队</h2>
+      <p class="sub anim d3">汇聚中美两地顶尖人才 &middot; AI技术+商业运营双轮驱动</p>
+      <div style="width:100%">
+        <div class="tg-title anim d4">&#x1f4cd; 北京总部 &middot; 现场团队</div>
+        <div class="team-grid g5 anim d5">
+          <div class="tc">
+            <div class="tc-avatar" style="background:linear-gradient(135deg,#00d4ff,#0077cc)"><img src="https://api.dicebear.com/7.x/initials/svg?seed=MX&backgroundColor=0077cc" alt="M"></div>
+            <div class="tc-name">Minxuan</div>
+            <div class="tc-role">产品总监 / 软件工程师</div>
+            <div class="tc-badge b-prod">PRODUCT &amp; DEV</div>
+          </div>
+          <div class="tc">
+            <div class="tc-avatar" style="background:linear-gradient(135deg,#00ffb0,#00aa70)"><img src="https://api.dicebear.com/7.x/initials/svg?seed=PY&backgroundColor=00aa70" alt="P"></div>
+            <div class="tc-name">Penny</div>
+            <div class="tc-role">COO 首席运营官</div>
+            <div class="tc-badge b-ops">OPERATIONS</div>
+          </div>
+          <div class="tc">
+            <div class="tc-avatar" style="background:linear-gradient(135deg,#7b68ee,#5544cc)"><img src="https://api.dicebear.com/7.x/initials/svg?seed=JK&backgroundColor=5544cc" alt="J"></div>
+            <div class="tc-name">Jack</div>
+            <div class="tc-role">算法工程师</div>
+            <div class="tc-badge b-ai">AI ALGORITHM</div>
+          </div>
+          <div class="tc">
+            <div class="tc-avatar" style="background:linear-gradient(135deg,#ffd700,#cc9900)"><img src="https://api.dicebear.com/7.x/initials/svg?seed=JQ&backgroundColor=cc9900" alt="J"></div>
+            <div class="tc-name">Jingqiong</div>
+            <div class="tc-role">人力行政负责人</div>
+            <div class="tc-badge b-hr">HR &amp; ADMIN</div>
+          </div>
+          <div class="tc">
+            <div class="tc-avatar" style="background:linear-gradient(135deg,#ff6b9d,#cc3366)"><img src="https://api.dicebear.com/7.x/initials/svg?seed=JD&backgroundColor=cc3366" alt="J"></div>
+            <div class="tc-name">Judy</div>
+            <div class="tc-role">网红营销负责人</div>
+            <div class="tc-badge b-mkt">MARKETING</div>
+          </div>
+        </div>
+        <div class="tg-title anim d6">&#x1f30e; 美国办公室 &middot; 硅谷团队</div>
+        <div class="team-grid g4 anim d7">
+          <div class="tc founder">
+            <div class="tc-avatar" style="background:linear-gradient(135deg,#7b68ee,#ff6b9d)"><img src="https://api.dicebear.com/7.x/initials/svg?seed=SV&backgroundColor=7b68ee" alt="S"></div>
+            <div class="tc-name">Steve</div>
+            <div class="tc-role">CEO / CTO &middot; 创始人</div>
+            <div class="tc-badge b-fdr">FOUNDER &middot; AI</div>
+            <div class="tc-extra">硅谷融资 &middot; 国际化战略<br>AI系统架构</div>
+          </div>
+          <div class="tc">
+            <div class="tc-avatar" style="background:linear-gradient(135deg,#00d4ff,#7b68ee)"><img src="https://api.dicebear.com/7.x/initials/svg?seed=AI1&backgroundColor=0088cc" alt="AI"></div>
+            <div class="tc-name">AI 研究员</div>
+            <div class="tc-role">AI Engineer &middot; 华人</div>
+            <div class="tc-badge b-ai">AI RESEARCH</div>
+          </div>
+          <div class="tc">
+            <div class="tc-avatar" style="background:linear-gradient(135deg,#00b4d8,#0077b6)"><img src="https://api.dicebear.com/7.x/initials/svg?seed=AI2&backgroundColor=0077b6" alt="AI"></div>
+            <div class="tc-name">AI 研究员</div>
+            <div class="tc-role">AI Engineer &middot; 国际人才</div>
+            <div class="tc-badge b-fs">GLOBAL TALENT</div>
+          </div>
+          <div class="tc">
+            <div class="tc-avatar" style="background:linear-gradient(135deg,#06d6a0,#118ab2)"><img src="https://api.dicebear.com/7.x/initials/svg?seed=FS&backgroundColor=118ab2" alt="FS"></div>
+            <div class="tc-name">全栈工程师</div>
+            <div class="tc-role">Full-Stack Dev &middot; 华人</div>
+            <div class="tc-badge b-prod">FULL STACK</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== SLIDE 4: DEMO OPENCLAW ========== -->
+  <div id="demo" class="step"
+       data-x="-1500" data-y="-800" data-z="-2500"
+       data-rotate-y="25" data-rotate-x="-5" data-rotate-z="-3"
+       data-scale="1">
+    <div class="slide-glass">
+      <div class="tag anim d1">PRODUCT SHOWCASE</div>
+      <h2 class="stitle anim d2">产品展示 &middot; <span class="acc">AI网红员工</span></h2>
+      <p class="sub anim d3">OpenClaw &mdash; AI驱动的网红管理智能员工系统</p>
+      <div class="demo-hero anim-scale d4" style="width:100%">
+        <div class="demo-num">01</div>
+        <div class="demo-badge primary">&#x2728; DEMO 1 &middot; OpenClaw</div>
+        <div class="demo-title">AI 网红员工系统</div>
+        <div class="demo-desc">基于大语言模型的智能网红管理平台。AI员工自主完成网红沟通、内容策划、账号运营全流程，7&times;24小时无间断自动化运营</div>
+        <div class="feat-grid">
+          <div class="feat-item anim d5">
+            <div class="feat-chk c">&#x2713;</div>
+            <div class="feat-txt"><strong>Telegram AI 员工</strong>7&times;24小时自动化网红沟通，多语种实时响应，覆盖全球时区</div>
+          </div>
+          <div class="feat-item anim d6">
+            <div class="feat-chk c">&#x2713;</div>
+            <div class="feat-txt"><strong>Web 平台部署</strong>AI员工上线至网站，多渠道触达，可视化管理面板</div>
+          </div>
+          <div class="feat-item anim d7">
+            <div class="feat-chk c">&#x2713;</div>
+            <div class="feat-txt"><strong>智能内容生成</strong>自动生成营销文案、推广策略、运营报告与数据分析</div>
+          </div>
+          <div class="feat-item anim d8">
+            <div class="feat-chk c">&#x2713;</div>
+            <div class="feat-txt"><strong>规模化运营</strong>单AI员工管理数百位网红，运营效率提升 10x 以上</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== SLIDE 5: TECH ========== -->
+  <div id="tech" class="step"
+       data-x="-3000" data-y="600" data-z="-1200"
+       data-rotate-y="-30" data-rotate-x="10"
+       data-scale="1">
+    <div class="slide-glass">
+      <div class="tag anim d1">TECHNOLOGY &amp; APP</div>
+      <h2 class="stitle anim d2">技术能力 &middot; <span class="acc">产品矩阵</span></h2>
+      <p class="sub anim d3">自研AI生成引擎 + C端创意工具生态</p>
+      <div class="grid g2" style="width:100%">
+        <div class="gc anim d4" style="position:relative;overflow:hidden">
+          <div class="demo-num" style="font-size:3.5rem;top:6px;right:16px">02</div>
+          <div class="demo-badge primary" style="font-size:.65rem">DEMO 2 &middot; AI生成引擎</div>
+          <h3 style="margin:8px 0 6px;font-size:1.15rem">图片 &amp; 短剧生成</h3>
+          <p style="font-size:.78rem;color:var(--text2);line-height:1.6;margin-bottom:12px">自研模型驱动的高质量视觉内容引擎，多风格多场景</p>
+          <div class="tbar-item">
+            <div class="tbar-top"><span class="tbar-label">图片生成质量</span><span class="tbar-val">95%</span></div>
+            <div class="tbar-track"><div class="tbar-fill fc" data-w="95" style="--fill-w:95%"></div></div>
+          </div>
+          <div class="tbar-item">
+            <div class="tbar-top"><span class="tbar-label">短剧智能度</span><span class="tbar-val">90%</span></div>
+            <div class="tbar-track"><div class="tbar-fill fg" data-w="90" style="--fill-w:90%"></div></div>
+          </div>
+          <div class="tbar-item">
+            <div class="tbar-top"><span class="tbar-label">生成速度 vs 行业</span><span class="tbar-val">3x</span></div>
+            <div class="tbar-track"><div class="tbar-fill fp" data-w="85" style="--fill-w:85%"></div></div>
+          </div>
+          <div class="compare-box">
+            &#x1f4ca; VS <span style="color:var(--pink);font-weight:700">Kugo.ai</span> 生成质量领先，成本降低40%
+          </div>
+        </div>
+        <div class="gc anim d5" style="position:relative;overflow:hidden">
+          <div class="demo-num" style="font-size:3.5rem;top:6px;right:16px">03</div>
+          <div class="demo-badge green" style="font-size:.65rem">DEMO 3 &middot; App</div>
+          <h3 style="margin:8px 0 6px;font-size:1.15rem">移动端创意工具</h3>
+          <p style="font-size:.78rem;color:var(--text2);line-height:1.6;margin-bottom:12px">面向全球C端用户的AI创意内容App</p>
+          <div class="app-item"><span class="icon" style="color:var(--cyan)">&#x2726;</span>AI一键生成社交媒体图文与短视频</div>
+          <div class="app-item"><span class="icon" style="color:var(--purple)">&#x2726;</span>多平台一键发布 &middot; 数据分析追踪</div>
+          <div class="app-item"><span class="icon" style="color:var(--green)">&#x2726;</span>覆盖 Instagram / TikTok / YouTube / Snapchat</div>
+          <div class="app-item"><span class="icon" style="color:var(--pink)">&#x2726;</span>已获海外用户好评，持续高速迭代中</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== SLIDE 6: BUSINESS ========== -->
+  <div id="business" class="step"
+       data-x="800" data-y="1800" data-z="-1800"
+       data-rotate-y="12" data-rotate-x="-8" data-rotate-z="5"
+       data-scale="1">
+    <div class="slide-glass">
+      <div class="tag anim d1">BUSINESS &amp; INFLUENCE</div>
+      <h2 class="stitle anim d2">商务拓展 &middot; <span class="acc">行业影响力</span></h2>
+      <p class="sub anim d3">深度连接全球头部平台 &middot; 活跃于AI学术前沿</p>
+      <div class="grid g2" style="width:100%;margin-bottom:14px">
+        <div class="gc anim d4">
+          <div class="ico c">&#x2708;&#xfe0f;</div>
+          <h3>全球商务拓展</h3>
+          <div class="tl" style="margin-top:12px">
+            <div class="tl-i"><div class="tl-d">2026</div><div class="tl-t">走访 <strong>Snapchat 总部</strong>，洽谈平台级深度合作</div></div>
+            <div class="tl-i"><div class="tl-d">2025</div><div class="tl-t"><strong>沙特头部网红</strong>签约；<strong>欧洲</strong>市场拓展</div></div>
+            <div class="tl-i"><div class="tl-d">2024</div><div class="tl-t">公司成立，完成融资，搭建核心团队</div></div>
+          </div>
+          <div class="img-row">
+            <div class="img-card"><img src="https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=300&h=200&fit=crop" alt="Snapchat"><div class="img-overlay"><div class="img-label">Snapchat 总部参访</div></div></div>
+            <div class="img-card"><img src="https://images.unsplash.com/photo-1466442929976-97f336a657be?w=300&h=200&fit=crop" alt="Saudi"><div class="img-overlay"><div class="img-label">沙特网红合作</div></div></div>
+            <div class="img-card"><img src="https://images.unsplash.com/photo-1493707553966-283afac8c358?w=300&h=200&fit=crop" alt="Europe"><div class="img-overlay"><div class="img-label">欧洲商务出差</div></div></div>
+          </div>
+        </div>
+        <div class="gc anim d5">
+          <div class="ico p">&#x1f3db;&#xfe0f;</div>
+          <h3>AI 学术与行业贡献</h3>
+          <div class="tl" style="margin-top:12px">
+            <div class="tl-i"><div class="tl-d">NeurIPS</div><div class="tl-t">全球<strong>顶级AI学术会议</strong>，展示研究成果</div></div>
+            <div class="tl-i"><div class="tl-d">GTC</div><div class="tl-t">NVIDIA <strong>GTC 大会</strong>技术贡献与展示</div></div>
+            <div class="tl-i"><div class="tl-d">持续</div><div class="tl-t">定期参与国际<strong>AI峰会</strong>与技术交流</div></div>
+          </div>
+          <div class="img-row">
+            <div class="img-card"><img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=300&h=200&fit=crop" alt="NeurIPS"><div class="img-overlay"><div class="img-label">NeurIPS 会议</div></div></div>
+            <div class="img-card"><img src="https://images.unsplash.com/photo-1591115765373-5207764f72e7?w=300&h=200&fit=crop" alt="GTC"><div class="img-overlay"><div class="img-label">NVIDIA GTC</div></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="stats anim d6">
+        <div class="st"><div class="st-n">$2M<span class="u">+</span></div><div class="st-l">海外年度营收</div></div>
+        <div class="st"><div class="st-n">50<span class="u">+</span></div><div class="st-l">全球合作网红</div></div>
+        <div class="st"><div class="st-n">10<span class="u">+</span></div><div class="st-l">覆盖国家与地区</div></div>
+        <div class="st"><div class="st-n">5<span class="u">+</span></div><div class="st-l">平台级合作伙伴</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== SLIDE 7: CONTRIBUTION ========== -->
+  <div id="contribution" class="step"
+       data-x="3200" data-y="1200" data-z="-600"
+       data-rotate-y="-20" data-rotate-x="15" data-rotate-z="-4"
+       data-scale="1">
+    <div class="slide-glass">
+      <div class="tag anim d1">SOCIAL IMPACT</div>
+      <h2 class="stitle anim d2">社会贡献 &middot; <span class="acc">发展愿景</span></h2>
+      <p class="sub anim d3">扎根顺义 &middot; 链接全球 &middot; AI赋能区域产业升级</p>
+      <div class="grid g2" style="width:100%">
+        <div class="gc anim d4" style="border-color:rgba(0,255,176,.1)">
+          <div class="ico g">&#x1f3d7;&#xfe0f;</div>
+          <h3 style="color:var(--green)">北京 &middot; 顺义区贡献</h3>
+          <div style="margin-top:16px">
+            <div class="cbar">
+              <div class="cbar-top"><div class="cbar-title">&#x1f465; 创造本地就业</div><div class="cbar-val">15+ 岗位</div></div>
+              <div class="cbar-track"><div class="cbar-fill cg" data-w="65" style="--fill-w:65%"></div></div>
+              <div class="cbar-note">持续扩招中 &middot; 计划年底达30人</div>
+            </div>
+            <div class="cbar">
+              <div class="cbar-top"><div class="cbar-title">&#x1f4b0; 年度纳税额</div><div class="cbar-val">50万+</div></div>
+              <div class="cbar-track"><div class="cbar-fill cp" data-w="50" style="--fill-w:50%"></div></div>
+              <div class="cbar-note">随业务增长稳步提升</div>
+            </div>
+            <div class="cbar">
+              <div class="cbar-top"><div class="cbar-title">&#x1f4a1; 硅谷技术引入</div><div class="cbar-val">前沿 AI</div></div>
+              <div class="cbar-track"><div class="cbar-fill co" data-w="80" style="--fill-w:80%"></div></div>
+              <div class="cbar-note">引入硅谷前沿AI &middot; 助力区域科技升级</div>
+            </div>
+          </div>
+        </div>
+        <div class="gc anim d5" style="border-color:rgba(123,104,238,.12)">
+          <div class="ico p">&#x1f30d;</div>
+          <h3 style="color:var(--purple)">全球人才 &amp; 硅谷资本</h3>
+          <div style="margin-top:16px">
+            <div class="info-item" style="background:rgba(123,104,238,.04);border:1px solid rgba(123,104,238,.08);border-radius:14px">
+              <div class="info-icon" style="background:rgba(123,104,238,.12)">&#x1f9d1;&#x200d;&#x1f4bb;</div>
+              <div><div class="info-title">全球AI人才招募</div><div class="info-desc">顶尖AI人才汇聚北京顺义</div></div>
+            </div>
+            <div class="info-item" style="background:rgba(0,212,255,.04);border:1px solid rgba(0,212,255,.08);border-radius:14px">
+              <div class="info-icon" style="background:rgba(0,212,255,.12)">&#x1f4b8;</div>
+              <div><div class="info-title">对接硅谷顶级风投</div><div class="info-desc">引入国际资本与产业资源</div></div>
+            </div>
+            <div class="info-item" style="background:rgba(255,107,157,.04);border:1px solid rgba(255,107,157,.08);border-radius:14px">
+              <div class="info-icon" style="background:rgba(255,107,157,.12)">&#x1f3af;</div>
+              <div><div class="info-title">打造 "AI+出海" 标杆</div><div class="info-desc">树立顺义区AI出海企业典范</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== SLIDE 8: VISION ========== -->
+  <div id="vision" class="step"
+       data-x="0" data-y="0" data-z="-3500"
+       data-rotate-x="0" data-rotate-y="0"
+       data-scale="2">
+    <div class="slide-glass" style="justify-content:center;align-items:center">
+      <div class="vision-box">
+        <div class="v-card anim-scale d2">
+          <div class="tag anim d1" style="justify-content:center">OUR VISION</div>
+          <div class="v-quote anim d3">以AI技术连接全球创作者<br>让每一个品牌触达世界</div>
+          <div class="v-div anim d4"></div>
+          <p class="anim d5" style="font-size:1.1rem;color:var(--cyan);margin:16px 0 8px;font-weight:600">感谢各位领导莅临指导</p>
+          <p class="anim d6" style="font-size:.85rem;color:var(--text3);letter-spacing:2px">Airacle &middot; 北京顺义 &middot; 2026</p>
+        </div>
+        <div class="cover-meta anim d7" style="justify-content:center;margin-top:28px">
+          <div class="cm-item"><div class="cm-dot"></div>beijing.airacle.tech</div>
+          <div class="cm-item"><div class="cm-dot"></div>Silicon Valley &middot; Beijing</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== OVERVIEW ========== -->
+  <div id="overview" class="step"
+       data-x="400" data-y="0" data-z="-1000"
+       data-scale="6">
+  </div>
+
+</div>
+
+<div class="hint" id="navHint">&#x2190; &#x2192; / SPACE &middot; Navigate</div>
+
+<script src="https://cdn.jsdelivr.net/gh/impress/impress.js@2.0.0/js/impress.min.js"></script>
+<script>
+(function(){
+  // Init impress
+  impress().init();
+
+  // Slide counter + progress bar
+  var steps = document.querySelectorAll('.step');
+  var totalSteps = steps.length;
+  var counter = document.getElementById('slideCounter');
+  var progressBar = document.getElementById('progressBar');
+
+  function updateUI() {
+    var active = document.querySelector('.step.active');
+    if (!active) return;
+    var idx = Array.prototype.indexOf.call(steps, active);
+    var num = String(idx + 1).padStart(2, '0');
+    counter.innerHTML = '<span class="cur">' + num + '</span> / ' + String(totalSteps).padStart(2, '0');
+    var pct = ((idx) / (totalSteps - 1)) * 100;
+    progressBar.style.width = pct + '%';
+  }
+
+  // Listen for step changes
+  document.getElementById('impress').addEventListener('impress:stepenter', function(e) {
+    updateUI();
+  });
+
+  // Initial update
+  updateUI();
+
+  // Animate bar fills when step becomes active
+  document.getElementById('impress').addEventListener('impress:stepenter', function(e) {
+    var step = e.target;
+    // Animate tech bars
+    var tbarFills = step.querySelectorAll('.tbar-fill[data-w]');
+    tbarFills.forEach(function(el) {
+      setTimeout(function() {
+        el.style.width = el.getAttribute('data-w') + '%';
+      }, 600);
+    });
+    // Animate contribution bars
+    var cbarFills = step.querySelectorAll('.cbar-fill[data-w]');
+    cbarFills.forEach(function(el) {
+      setTimeout(function() {
+        el.style.width = el.getAttribute('data-w') + '%';
+      }, 600);
+    });
+  });
+
+  // Reset bars when leaving step
+  document.getElementById('impress').addEventListener('impress:stepleave', function(e) {
+    var step = e.target;
+    var fills = step.querySelectorAll('.tbar-fill[data-w], .cbar-fill[data-w]');
+    fills.forEach(function(el) {
+      el.style.width = '0%';
+    });
+  });
+})();
+</script>
+</body>
+</html>
